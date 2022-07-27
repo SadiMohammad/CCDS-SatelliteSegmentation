@@ -1,1 +1,1 @@
-# deepglobe-landcover
+# CCDS-satelliteCL
