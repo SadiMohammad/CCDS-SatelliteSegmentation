@@ -1,1 +1,1 @@
-# CCDS-satelliteCL
+# CCDS-SatelliteSegmentation
