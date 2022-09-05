@@ -14,7 +14,7 @@ image_train, image_test, label_train, label_test = train_test_split(
     image_files, label_files, test_size=142, random_state=0
 )
 image_train, image_val, label_train, label_val = train_test_split(
-    image_train, label_train, test_size=206, random_state=0
+    image_train, label_train, test_size=207, random_state=0
 )
 
 if not os.path.exists(data_split_dir):

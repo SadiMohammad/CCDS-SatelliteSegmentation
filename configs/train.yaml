@@ -1,13 +1,15 @@
 experiment_name: train
 dataset:
+  class_dict_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive"
   full_image_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/train"
   full_label_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/train"
   patches_image_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/patches/sat"
   patches_label_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/patches/mask"
-  train_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/train_img_ids.txt"
-  train_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/train_label_ids.txt"
+  train_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/dummy_split/train_img_ids.txt"
+  train_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/dummy_split/train_label_ids.txt"
   val_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/val_img_ids.txt"
   val_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/val_label_ids.txt"
   input_size: 512
+  no_of_patches: 16
   img_convert: RGB
-  gt_convert: RGB
+  label_convert: RGB
