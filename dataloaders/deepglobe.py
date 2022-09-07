@@ -16,7 +16,10 @@ def get_color_map(class_dict_path):
     return map_color
 
 
-def rgb_to_onehot(rgb_arr, color_dict):
+def rgb_to_onehot(pil_image, color_dict):
+    rgb_arr = np.array(pil_image)
+    rgb_arr[rgb_arr >= 128] = 255
+    rgb_arr[rgb_arr < 128] = 0
     assert len(rgb_arr.shape) == 3
     num_classes = len(color_dict)
     shape = rgb_arr.shape[:2] + (num_classes,)
@@ -40,16 +43,23 @@ class DeepGlobe_ROM(Dataset):
         self.label_files = df[df.columns[0]].tolist()
 
     def __getitem__(self, idx):
+        sample = {}
+        sample["file_ids"] = self.image_files[idx]
         image = Image.open(
             os.path.join(self.cfgs["dataset"]["full_image_path"], self.image_files[idx])
         ).convert(self.cfgs["dataset"]["img_convert"])
         label = Image.open(
             os.path.join(self.cfgs["dataset"]["full_label_path"], self.label_files[idx])
         ).convert(self.cfgs["dataset"]["label_convert"])
+        label_onehot = rgb_to_onehot(label, self.map_color)
+        label_encoded = np.argmax(label_onehot, axis=-1)
+        t_label_encoded = torch.from_numpy(label_encoded[None, :, :])
         if self.transformers:
             t_image = self.transformers["image"](image)
+            sample["images"] = t_image
             if "train" in self.cfgs["experiment_name"].lower():
-                t_label = self.transformers["label"](label)
+                t_label = self.transformers["label"](t_label_encoded)
+            sample["labels"] = t_label
 
         patch_images = []
         patch_labels = []
@@ -74,16 +84,21 @@ class DeepGlobe_ROM(Dataset):
                     self.cfgs["dataset"]["patches_label_path"], patch_label_file
                 )
             ).convert(self.cfgs["dataset"]["label_convert"])
+            patch_label_onehot = rgb_to_onehot(patch_label, self.map_color)
+            patch_label_encoded = np.argmax(patch_label_onehot, axis=-1)
+            tensor_patch_label = torch.from_numpy(patch_label_encoded[None, :, :])
             if self.transformers:
-                t_patch_image = self.transformers["image"](image)
+                t_patch_image = self.transformers["image"](patch_image)
                 if "train" in self.cfgs["experiment_name"].lower():
-                    t_patch_label = self.transformers["label"](label)
+                    t_patch_label = self.transformers["label"](tensor_patch_label)
             patch_images.append(t_patch_image)
             patch_labels.append(t_patch_label)
             t_patch_images = torch.stack(patch_images)
             t_patch_labels = torch.stack(patch_labels)
+            sample["patched_images"] = t_patch_images
+            sample["patched_labels"] = t_patch_labels
 
-        return t_image, t_label, t_patch_images, t_patch_labels
+        return sample
 
     def __len__(self):
         return len(self.image_files)
