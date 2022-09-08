@@ -52,13 +52,13 @@ class DeepGlobe_ROM(Dataset):
             os.path.join(self.cfgs["dataset"]["full_label_path"], self.label_files[idx])
         ).convert(self.cfgs["dataset"]["label_convert"])
         label_onehot = rgb_to_onehot(label, self.map_color)
-        label_encoded = np.argmax(label_onehot, axis=-1)
-        t_label_encoded = torch.from_numpy(label_encoded[None, :, :])
+        label_onehot = np.moveaxis(label_onehot, -1, 0)
+        t_label_onehot = torch.from_numpy(label_onehot)
         if self.transformers:
             t_image = self.transformers["image"](image)
             sample["images"] = t_image
             if "train" in self.cfgs["experiment_name"].lower():
-                t_label = self.transformers["label"](t_label_encoded)
+                t_label = self.transformers["label"](t_label_onehot)
             sample["labels"] = t_label
 
         patch_images = []
@@ -85,12 +85,14 @@ class DeepGlobe_ROM(Dataset):
                 )
             ).convert(self.cfgs["dataset"]["label_convert"])
             patch_label_onehot = rgb_to_onehot(patch_label, self.map_color)
-            patch_label_encoded = np.argmax(patch_label_onehot, axis=-1)
-            tensor_patch_label = torch.from_numpy(patch_label_encoded[None, :, :])
+            patch_label_onehot = np.moveaxis(patch_label_onehot, -1, 0)
+            tensor_patch_label_onehot = torch.from_numpy(patch_label_onehot)
             if self.transformers:
                 t_patch_image = self.transformers["image"](patch_image)
                 if "train" in self.cfgs["experiment_name"].lower():
-                    t_patch_label = self.transformers["label"](tensor_patch_label)
+                    t_patch_label = self.transformers["label"](
+                        tensor_patch_label_onehot
+                    )
             patch_images.append(t_patch_image)
             patch_labels.append(t_patch_label)
             t_patch_images = torch.stack(patch_images)
