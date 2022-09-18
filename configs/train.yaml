@@ -13,3 +13,10 @@ dataset:
   no_of_patches: 16
   img_convert: RGB
   label_convert: RGB
+model:
+  num_classes: 7
+  mode: sup
+  supervised_w: 1
+  backbone: "deeplab_v3+"
+  layers: 50
+  out_dim: 256
