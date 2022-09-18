@@ -1,7 +1,7 @@
 **/__pycache__/
 **/*.ipynb_checkpoints/
-
 temp.py
 temp2.py
 dump.py
 dump.ipynb
+models/model_ref.py
