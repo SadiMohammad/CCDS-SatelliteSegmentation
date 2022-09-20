@@ -4,6 +4,7 @@ from torch import nn
 from models.encoder import Encoder
 from models.modeling.deeplab import DeepLab as DeepLab_v3p
 import numpy as np
+from utils.losses import *
 
 
 class Model:
@@ -60,7 +61,7 @@ class Model:
                 enc, size=x_l.size()[2:], mode="bilinear", align_corners=True
             )
 
-        if self.mode == "supervised":
+        if self.mode == "sup":
             enc = self.encoder(x_l)
             enc = self.classifier(enc)
             output_l = F.interpolate(

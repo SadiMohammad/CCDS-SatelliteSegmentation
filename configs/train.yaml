@@ -20,3 +20,28 @@ model:
   backbone: "deeplab_v3+"
   layers: 50
   out_dim: 256
+optimizer:
+  optimizer_fn: Adam
+  initial_lr: 0.0001
+logs:
+  use_wandb: False
+  wandb_project_name: CCDS-SatelliteSegentation
+  wandb_entity: sadimohammad
+  run_name:
+  save_local_logs: True
+  local_logs_path: ../logs
+train_setup:
+  checkpoints_path: ../ckpts
+  batch_size: 4
+  epochs: 2
+  device: gpu
+  device_ids: 0
+  dataparallel: False
+  model_weight_load: False
+  best_valid_score: 0.0
+  model_weight_path: 2019-09-17 12:22:27.449158_epoch-3_dice-0.0.pth
+  loss: dice_coeff_loss
+  metric: iou_calc
+  use_thld_for_valid: True #threshold for validation
+  thld_for_valid: 0.5 #threshold for validation
+  save_best_model: True

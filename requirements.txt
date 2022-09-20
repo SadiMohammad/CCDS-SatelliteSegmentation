@@ -1,0 +1,11 @@
+lib==4.0.0
+natsort==8.2.0
+numpy==1.23.3
+pandas==1.4.4
+patchify==0.2.3
+Pillow==9.2.0
+PyYAML==6.0
+scikit_learn==1.1.2
+torch==1.12.1
+torchvision==0.13.1
+tqdm==4.64.1
