@@ -7,3 +7,4 @@ dump.ipynb
 models/model_ref.py
 *.log
 **/.vscode/
+pretrained/*
