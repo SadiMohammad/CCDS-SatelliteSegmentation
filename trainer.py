@@ -1,20 +1,28 @@
 import os
 import torch
 from tqdm import tqdm
-from utils.metrics import eval_metrics
+from base import BaseTrainer
+import numpy as np
 
 
 class Trainer:
     def __init__(
         self, **kwargs
-    ):  # time_stamp, model, optimizer, device, loader_train, loader_valid, loss_fn, metric_fn
+    ):  # cfgs, time_stamp, model, optimizer, device, loader_train, loader_valid, loss_fn, metric_fn
         self.__dict__.update(kwargs)
+        self.mode = self.cfgs["model"]["mode"]
+        self.num_classes = self.cfgs["model"]["num_classes"]
 
     def train(self):
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=0.01, momentum=0.9)
         self.optimizer.zero_grad()
         best_valid_score = self.cfgs["train_setup"]["best_valid_score"]
         for epoch in range(self.cfgs["train_setup"]["epochs"]):
-            print("\tStarting epoch - {}/{}.".format(epoch + 1, self.epochs))
+            print(
+                "\tStarting epoch - {}/{}.".format(
+                    epoch + 1, self.cfgs["train_setup"]["epochs"]
+                )
+            )
             self.model.train()
             total_batch_loss = 0
 
@@ -66,27 +74,34 @@ class Trainer:
                     non_blocking=True
                 )
                 if self.mode == "sup":
-                    total_loss, cur_losses, outputs = self.model(
-                        x_l=input, target_l=target
-                    )
+                    outputs = self.model(x_l=input, target_l=target)
 
                 if self.cfgs["train_setup"]["use_thld_for_valid"]:
                     outputs = (
                         outputs > self.cfgs["train_setup"]["thld_for_valid"]
                     ).float()
-                correct, labeled, inter, union = eval_metrics(
-                    outputs, target, self.num_classes, self.ignore_index
-                )
-            print(inter)
-            print(union)
-            # print("\n")
-            # print(
-            #     "VALIDATION >>> epoch: {:04d}/{:04d}, running_metric: {}".format(
-            #         epoch + 1,
-            #         self.epochs,
-            #         epoch_valid_metric,
-            #     ),
-            #     end="\r",
-            # )
-            # print("\n" * 2)
+                inter, union = self.metric_fn(outputs, target, self.num_classes)
+
+            epoch_valid_metric = np.mean(np.nan_to_num(inter / union))
+            print("\n")
+            print(
+                "VALIDATION >>> epoch: {:04d}/{:04d}, running_metric: {}".format(
+                    epoch + 1,
+                    self.cfgs["train_setup"]["epochs"],
+                    epoch_valid_metric,
+                ),
+                end="\r",
+            )
+            print("\n" * 2)
         return epoch_valid_metric
+
+    def _write_scalars_tb(self, logs):
+        for k, v in logs.items():
+            if "class_iou" not in k:
+                self.writer.add_scalar(f"train/{k}", v, self.wrt_step)
+        for i, opt_group in enumerate(self.optimizer.param_groups):
+            self.writer.add_scalar(
+                f"train/Learning_rate_{i}", opt_group["lr"], self.wrt_step
+            )
+        # current_rampup = self.model.module.unsup_loss_w.current_rampup
+        # self.writer.add_scalar('train/Unsupervised_rampup', current_rampup, self.wrt_step)

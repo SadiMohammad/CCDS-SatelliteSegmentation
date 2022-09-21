@@ -61,44 +61,44 @@ class DeepGlobe_ROM(Dataset):
                 t_label = self.transformers["label"](t_label_onehot)
             sample["labels"] = t_label
 
-        patch_images = []
-        patch_labels = []
-        for patch_id in range(self.cfgs["dataset"]["no_of_patches"]):
-            patch_image_file = "{}_{}.{}".format(
-                self.image_files[idx].split(".")[0],
-                str(patch_id),
-                self.image_files[idx].split(".")[1],
-            )
-            patch_image = Image.open(
-                os.path.join(
-                    self.cfgs["dataset"]["patches_image_path"], patch_image_file
-                )
-            ).convert(self.cfgs["dataset"]["img_convert"])
-            patch_label_file = "{}_{}.{}".format(
-                self.label_files[idx].split(".")[0],
-                str(patch_id),
-                self.label_files[idx].split(".")[1],
-            )
-            patch_label = Image.open(
-                os.path.join(
-                    self.cfgs["dataset"]["patches_label_path"], patch_label_file
-                )
-            ).convert(self.cfgs["dataset"]["label_convert"])
-            patch_label_onehot = rgb_to_onehot(patch_label, self.map_color)
-            patch_label_onehot = np.moveaxis(patch_label_onehot, -1, 0)
-            tensor_patch_label_onehot = torch.from_numpy(patch_label_onehot)
-            if self.transformers:
-                t_patch_image = self.transformers["image"](patch_image)
-                if "train" in self.cfgs["experiment_name"].lower():
-                    t_patch_label = self.transformers["label"](
-                        tensor_patch_label_onehot
-                    )
-            patch_images.append(t_patch_image)
-            patch_labels.append(t_patch_label)
-            t_patch_images = torch.stack(patch_images)
-            t_patch_labels = torch.stack(patch_labels)
-            sample["patched_images"] = t_patch_images
-            sample["patched_labels"] = t_patch_labels
+        # patch_images = []
+        # patch_labels = []
+        # for patch_id in range(self.cfgs["dataset"]["no_of_patches"]):
+        #     patch_image_file = "{}_{}.{}".format(
+        #         self.image_files[idx].split(".")[0],
+        #         str(patch_id),
+        #         self.image_files[idx].split(".")[1],
+        #     )
+        #     patch_image = Image.open(
+        #         os.path.join(
+        #             self.cfgs["dataset"]["patches_image_path"], patch_image_file
+        #         )
+        #     ).convert(self.cfgs["dataset"]["img_convert"])
+        #     patch_label_file = "{}_{}.{}".format(
+        #         self.label_files[idx].split(".")[0],
+        #         str(patch_id),
+        #         self.label_files[idx].split(".")[1],
+        #     )
+        #     patch_label = Image.open(
+        #         os.path.join(
+        #             self.cfgs["dataset"]["patches_label_path"], patch_label_file
+        #         )
+        #     ).convert(self.cfgs["dataset"]["label_convert"])
+        #     patch_label_onehot = rgb_to_onehot(patch_label, self.map_color)
+        #     patch_label_onehot = np.moveaxis(patch_label_onehot, -1, 0)
+        #     tensor_patch_label_onehot = torch.from_numpy(patch_label_onehot)
+            # if self.transformers:
+            #     t_patch_image = self.transformers["image"](patch_image)
+            #     if "train" in self.cfgs["experiment_name"].lower():
+            #         t_patch_label = self.transformers["label"](
+            #             tensor_patch_label_onehot
+            #         )
+            # patch_images.append(t_patch_image)
+            # patch_labels.append(t_patch_label)
+            # t_patch_images = torch.stack(patch_images)
+            # t_patch_labels = torch.stack(patch_labels)
+            # sample["patched_images"] = t_patch_images
+            # sample["patched_labels"] = t_patch_labels
 
         return sample
 

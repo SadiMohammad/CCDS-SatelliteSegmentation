@@ -5,8 +5,8 @@ dataset:
   full_label_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/train"
   patches_image_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/patches/sat"
   patches_label_path: "/media/sadi/Vol_2/IUB_research_local/Satellite/data/deepglobe_kaggle/archive/patches/mask"
-  train_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/dummy_split/train_img_ids.txt"
-  train_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/dummy_split/train_label_ids.txt"
+  train_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/train_img_ids.txt"
+  train_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/train_label_ids.txt"
   val_image_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/val_img_ids.txt"
   val_label_ids: "/media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/dataloaders/deepglobe_split0/val_label_ids.txt"
   input_size: 512
@@ -21,20 +21,23 @@ model:
   layers: 50
   out_dim: 256
 optimizer:
-  optimizer_fn: Adam
-  initial_lr: 0.0001
+  type: SGD
+  args:
+    lr: 0.01
+    weight_decay: 1.0e-4
+    momentum: 0.9
 logs:
   use_wandb: False
   wandb_project_name: CCDS-SatelliteSegentation
   wandb_entity: sadimohammad
   run_name:
   save_local_logs: True
-  local_logs_path: ../logs
+  local_logs_path: /media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/logs
 train_setup:
-  checkpoints_path: ../ckpts
-  batch_size: 4
+  checkpoints_path: /media/sadi/Vol_2/IUB_research_local/Satellite/CCDS-SatelliteSegmentation/ckpts
+  batch_size: 2
   epochs: 2
-  device: gpu
+  device: cuda
   device_ids: 0
   dataparallel: False
   model_weight_load: False
@@ -44,4 +47,4 @@ train_setup:
   metric: iou_calc
   use_thld_for_valid: True #threshold for validation
   thld_for_valid: 0.5 #threshold for validation
-  save_best_model: True
+  save_best_model: False

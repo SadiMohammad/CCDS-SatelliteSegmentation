@@ -19,7 +19,6 @@ def get_transformers(cfgs):
                 transforms.Resize(
                     (cfgs["dataset"]["input_size"], cfgs["dataset"]["input_size"])
                 ),
-                transforms.ToTensor(),
             ]
         ),
     }

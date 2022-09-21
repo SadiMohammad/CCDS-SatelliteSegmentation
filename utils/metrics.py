@@ -20,7 +20,8 @@ def batch_pix_accuracy(output, target):
 
 
 def batch_intersection_union(output, target, num_class):
-    _, predict = torch.max(output, 1)
+    # _, predict = torch.max(output, 1)
+    predict = output
     predict = predict + 1
     target = target + 1
 
@@ -38,18 +39,18 @@ def batch_intersection_union(output, target, num_class):
     # if distributed:
     #     dist.all_reduce(area_inter), dist.all_reduce(area_union)
 
-    dist.all_reduce(area_inter), dist.all_reduce(area_union)
+    # dist.all_reduce(area_inter), dist.all_reduce(area_union)
     return area_inter.cpu().numpy(), area_union.cpu().numpy()
 
 
-def eval_metrics(output, target, num_classes, ignore_index):
+def eval_metrics(output, target, num_classes, ignore_index=None):
     target = target.clone()
-    target[target == ignore_index] = -1
-    correct, labeled = batch_pix_accuracy(output.data, target)
+    # target[target == ignore_index] = -1
+    # correct, labeled = batch_pix_accuracy(output.data, target)
     inter, union = batch_intersection_union(output.data, target, num_classes)
     return [
-        np.round(correct, 5),
-        np.round(labeled, 5),
+        # np.round(correct, 5),
+        # np.round(labeled, 5),
         np.round(inter, 5),
         np.round(union, 5),
     ]

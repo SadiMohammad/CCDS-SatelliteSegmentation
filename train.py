@@ -9,11 +9,13 @@ from models.model import Model
 from configs.config import Config
 from utils.logger import Logger
 from utils.transforms import *
+from utils.metrics import eval_metrics
 from utils.losses import CE_loss
 from dataloaders.deepglobe import DeepGlobe_ROM
 from trainer import Trainer
 
 time_stamp = time.strftime("%Y_%m_%d_%H_%M_%S")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def main(Cfgs):
@@ -22,13 +24,13 @@ def main(Cfgs):
 
     # LOGGING
     if cfgs["logs"]["save_local_logs"]:
-        sys.stdout = Logger(
-            os.path.join(
-                cfgs["logs"]["local_logs_path"],
-                cfgs["experiment_name"],
-                "{}.log".format(time_stamp),
-            )
+        log_dir = os.path.join(
+            cfgs["logs"]["local_logs_path"],
+            cfgs["experiment_name"],
         )
+        if not (os.path.exists(log_dir)):
+            os.makedirs(log_dir)
+        sys.stdout = Logger(os.path.join(log_dir, "{}.log".format(time_stamp)))
 
     # DATA LOADERS
     transformers = get_transformers(cfgs)
@@ -51,36 +53,20 @@ def main(Cfgs):
 
     # MODEL
     sup_loss = CE_loss
-    model = Model(
-        num_classes=cfgs["model"]["num_classes"],
-        conf=cfgs["model"],
-        sup_loss=sup_loss,
-    )
+    model = Model(conf=cfgs["model"], sup_loss=sup_loss)
+    model = torch.nn.DataParallel(model, device_ids=[0])
 
     # Training
-    optimizer = getattr(optim, cfgs["optimizer"]["optimizer_fn"])(
-        model.parameters(),  # momentum=0.9, for sgd
-        lr=cfgs["optimizer"]["initial_lr"],
-        weight_decay=0.0005,
-    )
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=cfgs["optimizer"]["optimizer_fn"],
-        betas=(0.9, 0.999),
-        eps=1e-08,
-        weight_decay=0,
-        amsgrad=False,
-    )
-    metric_fn = cfgs["train_setup"]["metric"]
+    metric_fn = eval_metrics
     trainer = Trainer(
+        cfgs=cfgs,
         time_stamp=time_stamp,
         model=model,
-        optimizer=optimizer,
         device=device,
         loader_train=loader_train,
         loader_valid=loader_valid,
         loss_fn=CE_loss,
-        metric_fn=metric_fn,
+        metric_fn=eval_metrics,
     )
     trainer.train()
 

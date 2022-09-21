@@ -5,9 +5,10 @@ from models.encoder import Encoder
 from models.modeling.deeplab import DeepLab as DeepLab_v3p
 import numpy as np
 from utils.losses import *
+from base import BaseModel
 
 
-class Model:
+class Model(BaseModel):
     def __init__(
         self,
         conf,
@@ -16,6 +17,7 @@ class Model:
         testing=False,
         pretrained=True,
     ):
+        super(Model, self).__init__()
         self.conf = conf
         self.mode = conf["mode"]
 
